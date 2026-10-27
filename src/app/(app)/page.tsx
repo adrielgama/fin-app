@@ -1,61 +1,92 @@
 import { format } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BalanceHero } from "@/components/finance/balance-hero";
+import { CardUsage } from "@/components/finance/card-usage";
+import { Panel, Section } from "@/components/finance/section";
+import { SpendingDonut } from "@/components/finance/spending-donut";
+import { TransactionList } from "@/components/finance/transaction-list";
+import { Reveal } from "@/components/motion/reveal";
+import { cardSummaries, categoryBreakdown, sumBy } from "@/lib/analytics";
 import { requireUser } from "@/lib/auth/session";
 import { formatCents, formatDate } from "@/lib/format";
 import { getRepository } from "@/lib/repository";
 
-export const metadata = { title: "Dashboard" };
+export const metadata = { title: "Início" };
 
 export default async function DashboardPage() {
   const user = await requireUser();
   const repo = getRepository(user.uid);
   const month = format(new Date(), "yyyy-MM");
 
-  const [transactions, bills] = await Promise.all([repo.listTransactions({ month }), repo.listBills()]);
+  const [transactions, bills, accounts, categories] = await Promise.all([
+    repo.listTransactions({ month }),
+    repo.listBills(),
+    repo.listAccounts(),
+    repo.listCategories(),
+  ]);
 
-  const income = transactions.filter((t) => t.kind === "income").reduce((sum, t) => sum + t.amount, 0);
-  const expense = transactions.filter((t) => t.kind === "expense").reduce((sum, t) => sum + t.amount, 0);
+  const income = sumBy(transactions, "income");
+  const expense = sumBy(transactions, "expense");
+  const slices = categoryBreakdown(transactions, categories);
+  const cards = cardSummaries(accounts, transactions);
+  const recent = transactions.toSorted((a, b) => b.date.localeCompare(a.date)).slice(0, 6);
   const upcoming = bills
     .filter((b) => b.status === "pending")
     .toSorted((a, b) => a.dueDate.localeCompare(b.dueDate))
-    .slice(0, 5);
-
-  const stats = [
-    { label: "Receitas", value: income },
-    { label: "Despesas", value: expense },
-    { label: "Saldo do mês", value: income - expense },
-  ];
+    .slice(0, 4);
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Olá, {user.name.split(" ")[0]}</h1>
-      <div className="grid gap-4 sm:grid-cols-3">
-        {stats.map(({ label, value }) => (
-          <Card key={label}>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
-            </CardHeader>
-            <CardContent className="text-2xl font-semibold tabular-nums">{formatCents(value)}</CardContent>
-          </Card>
-        ))}
+    <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
+      <div className="flex flex-col gap-6">
+        <Reveal>
+          <BalanceHero name={user.name.split(" ")[0]} balance={income - expense} income={income} expense={expense} />
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          <Section title="Meus cartões" href="/cartoes">
+            <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:px-0">
+              {cards.map((c) => (
+                <CardUsage key={c.account.id} summary={c} />
+              ))}
+            </div>
+          </Section>
+        </Reveal>
+
+        <Reveal delay={0.15}>
+          <Section title="Próximos vencimentos">
+            <Panel>
+              <ul className="flex flex-col gap-1">
+                {upcoming.map((bill) => (
+                  <li key={bill.id} className="flex items-center justify-between rounded-2xl p-2.5 text-sm hover:bg-muted/60">
+                    <span className="font-medium">
+                      {bill.title}
+                      <span className="block text-xs font-normal text-muted-foreground">{formatDate(bill.dueDate)}</span>
+                    </span>
+                    <span className="font-semibold tabular-nums">{formatCents(bill.amount)}</span>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          </Section>
+        </Reveal>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Próximos vencimentos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="flex flex-col gap-2 text-sm">
-            {upcoming.map((bill) => (
-              <li key={bill.id} className="flex justify-between gap-4">
-                <span>
-                  {bill.title} <span className="text-muted-foreground">· {formatDate(bill.dueDate)}</span>
-                </span>
-                <span className="tabular-nums">{formatCents(bill.amount)}</span>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+
+      <div className="flex flex-col gap-6">
+        <Reveal delay={0.12}>
+          <Section title="Gastos por categoria" href="/gastos" linkLabel="Detalhes">
+            <Panel>
+              <SpendingDonut slices={slices.slice(0, 5)} total={expense} />
+            </Panel>
+          </Section>
+        </Reveal>
+
+        <Reveal delay={0.2}>
+          <Section title="Últimos lançamentos" href="/lancamentos">
+            <Panel>
+              <TransactionList transactions={recent} categories={categories} accounts={accounts} />
+            </Panel>
+          </Section>
+        </Reveal>
+      </div>
     </div>
   );
 }

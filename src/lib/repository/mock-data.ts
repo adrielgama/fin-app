@@ -1,21 +1,47 @@
 import { addMonths, format } from "date-fns";
 import type { Account, Bill, Category, IncomeEntry, Transaction } from "@/lib/schemas";
 
+const noCard = { creditLimit: null, closingDay: null, dueDay: null, lastDigits: null } as const;
+
 export const accounts: Account[] = [
-  { id: "acc-nubank", name: "Nubank", type: "checking", initialBalance: 250000, color: "#8a05be", archived: false },
-  { id: "acc-itau", name: "Itaú", type: "checking", initialBalance: 480000, color: "#ec7000", archived: false },
-  { id: "acc-card", name: "Cartão Nubank", type: "credit_card", initialBalance: 0, color: "#6d28d9", archived: false },
+  { id: "acc-nubank", name: "Nubank", type: "checking", initialBalance: 250000, color: "#8a05be", archived: false, ...noCard },
+  { id: "acc-itau", name: "Itaú", type: "checking", initialBalance: 480000, color: "#ec7000", archived: false, ...noCard },
+  {
+    id: "acc-card",
+    name: "Nubank Ultravioleta",
+    type: "credit_card",
+    initialBalance: 0,
+    color: "#7c3aed",
+    archived: false,
+    creditLimit: 1500000,
+    closingDay: 25,
+    dueDay: 2,
+    lastDigits: "4821",
+  },
+  {
+    id: "acc-card2",
+    name: "Itaú Personnalité",
+    type: "credit_card",
+    initialBalance: 0,
+    color: "#0f172a",
+    archived: false,
+    creditLimit: 2200000,
+    closingDay: 10,
+    dueDay: 17,
+    lastDigits: "9037",
+  },
 ];
 
 export const categories: Category[] = [
-  { id: "cat-moradia", name: "Moradia", kind: "expense", color: "#2563eb" },
-  { id: "cat-mercado", name: "Mercado", kind: "expense", color: "#16a34a" },
-  { id: "cat-transporte", name: "Transporte", kind: "expense", color: "#ca8a04" },
-  { id: "cat-lazer", name: "Lazer", kind: "expense", color: "#db2777" },
-  { id: "cat-saude", name: "Saúde", kind: "expense", color: "#dc2626" },
-  { id: "cat-impostos", name: "Impostos", kind: "expense", color: "#475569" },
-  { id: "cat-salario", name: "Salário", kind: "income", color: "#059669" },
-  { id: "cat-freela", name: "Notas PJ", kind: "income", color: "#0891b2" },
+  { id: "cat-moradia", name: "Moradia", kind: "expense", icon: "home", color: "#6366f1" },
+  { id: "cat-mercado", name: "Mercado", kind: "expense", icon: "shopping-cart", color: "#10b981" },
+  { id: "cat-transporte", name: "Transporte", kind: "expense", icon: "car", color: "#f59e0b" },
+  { id: "cat-lazer", name: "Lazer", kind: "expense", icon: "clapperboard", color: "#ec4899" },
+  { id: "cat-saude", name: "Saúde", kind: "expense", icon: "heart-pulse", color: "#ef4444" },
+  { id: "cat-impostos", name: "Impostos", kind: "expense", icon: "landmark", color: "#64748b" },
+  { id: "cat-assinaturas", name: "Assinaturas", kind: "expense", icon: "repeat", color: "#06b6d4" },
+  { id: "cat-salario", name: "Salário", kind: "income", icon: "briefcase", color: "#059669" },
+  { id: "cat-freela", name: "Notas PJ", kind: "income", icon: "file-text", color: "#0891b2" },
 ];
 
 const none = { frequency: "none" } as const;
@@ -62,7 +88,9 @@ export function buildTransactions(now = new Date()): Transaction[] {
       tx("mercado1", "10", "expense", "Supermercado", 62000 + back * 3000, "cat-mercado", "acc-card", "credit"),
       tx("mercado2", "22", "expense", "Supermercado", 48000, "cat-mercado", "acc-card", "credit"),
       tx("uber", "12", "expense", "Transporte por app", 21000 + back * 1500, "cat-transporte", "acc-card", "credit"),
-      tx("cinema", "18", "expense", "Cinema e jantar", 18500, "cat-lazer", "acc-nubank", "pix"),
+      tx("cinema", "18", "expense", "Cinema e jantar", 18500, "cat-lazer", "acc-card2", "credit"),
+      tx("streaming", "14", "expense", "Streaming e apps", 12900, "cat-assinaturas", "acc-card2", "credit", monthly),
+      tx("restaurante", "26", "expense", "Restaurantes", 31000 + back * 2000, "cat-lazer", "acc-card", "credit"),
       tx("saude", "20", "expense", "Plano de saúde", 54000, "cat-saude", "acc-itau", "debit", monthly),
       tx("das", "20", "expense", "DAS (Simples)", 36000, "cat-impostos", "acc-nubank", "boleto", monthly),
     );

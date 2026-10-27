@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { idSchema } from "./common";
+import { centsSchema, idSchema } from "./common";
 
 export const accountTypeSchema = z.enum(["checking", "savings", "credit_card", "cash", "investment"]);
 
@@ -9,6 +9,10 @@ export const accountSchema = z.object({
   type: accountTypeSchema,
   initialBalance: z.number().int(),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  creditLimit: centsSchema.nullable().default(null),
+  closingDay: z.number().int().min(1).max(31).nullable().default(null),
+  dueDay: z.number().int().min(1).max(31).nullable().default(null),
+  lastDigits: z.string().regex(/^\d{4}$/).nullable().default(null),
   archived: z.boolean().default(false),
 });
 

@@ -5,6 +5,7 @@ export const categorySchema = z.object({
   id: idSchema,
   name: z.string().min(1).max(40),
   kind: z.enum(["income", "expense"]),
+  icon: z.string().max(30).default("tag"),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
 });
 
