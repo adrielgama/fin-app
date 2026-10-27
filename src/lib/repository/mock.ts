@@ -1,25 +1,32 @@
-import type { IncomeEntry, Transaction } from "@/lib/schemas";
+import type { Bill, IncomeEntry, Receipt, Transaction } from "@/lib/schemas";
 import type { FinanceRepository } from "./types";
 import { accounts, buildBills, buildIncomeEntries, buildTransactions, categories } from "./mock-data";
 
 interface MockStore {
   transactions: Transaction[];
   incomeEntries: IncomeEntry[];
+  bills: Bill[];
+  receiptFiles: Map<string, { contentType: string; bytes: Uint8Array }>;
 }
 
 const globalStore = globalThis as typeof globalThis & { __finMockStore?: MockStore };
 
 function getStore(): MockStore {
-  globalStore.__finMockStore ??= { transactions: buildTransactions(new Date()), incomeEntries: buildIncomeEntries(new Date()) };
+  globalStore.__finMockStore ??= {
+    transactions: buildTransactions(new Date()),
+    incomeEntries: buildIncomeEntries(new Date()),
+    bills: buildBills(new Date()),
+    receiptFiles: new Map(),
+  };
   return globalStore.__finMockStore;
 }
 
 const inMonth = (date: string, month?: string) => !month || date.startsWith(month);
 
+export const getMockReceiptFiles = () => getStore().receiptFiles;
+
 export function createMockRepository(): FinanceRepository {
   const store = getStore();
-  const now = new Date();
-  const bills = buildBills(now);
 
   const indexIn = (list: { id: string }[], id: string) => {
     const index = list.findIndex((item) => item.id === id);
@@ -65,6 +72,21 @@ export function createMockRepository(): FinanceRepository {
     deleteIncomeEntry: async (id) => {
       store.incomeEntries.splice(indexIn(store.incomeEntries, id), 1);
     },
-    listBills: async () => bills,
+    listBills: async () => store.bills,
+    addReceipt: async (target, meta) => {
+      const receipt: Receipt = { ...meta, uploadedAt: new Date().toISOString() };
+      const owner = target.kind === "transaction" ? store.transactions : store.bills;
+      owner[indexIn(owner, target.id)].receipts.push(receipt);
+      return receipt;
+    },
+    removeReceipt: async (target, receiptId) => {
+      const owner = target.kind === "transaction" ? store.transactions : store.bills;
+      const { receipts } = owner[indexIn(owner, target.id)];
+      const receipt = receipts.find((r) => r.id === receiptId);
+      if (!receipt) throw new Error("Comprovante não encontrado");
+      receipts.splice(receipts.indexOf(receipt), 1);
+      store.receiptFiles.delete(receiptId);
+      return receipt;
+    },
   };
 }

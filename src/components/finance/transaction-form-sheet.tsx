@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { removeTransaction, saveTransaction } from "@/app/(app)/lancamentos/actions";
+import { ReceiptsField } from "@/components/finance/receipts-field";
 import { Field, selectClass } from "@/components/finance/form-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,7 @@ interface TransactionFormSheetProps {
   transaction: Transaction | null;
   categories: Category[];
   accounts: Account[];
+  uid: string;
 }
 
 function emptyValues(categories: Category[], accounts: Account[]): TransactionFormValues {
@@ -58,7 +60,7 @@ function emptyValues(categories: Category[], accounts: Account[]): TransactionFo
   };
 }
 
-export function TransactionFormSheet({ open, onOpenChange, transaction, categories, accounts }: TransactionFormSheetProps) {
+export function TransactionFormSheet({ open, onOpenChange, transaction, categories, accounts, uid }: TransactionFormSheetProps) {
   const [pending, startTransition] = useTransition();
   const defaults = useMemo(
     () => (transaction ? transactionToFormDefaults(transaction) : emptyValues(categories, accounts)),
@@ -211,6 +213,12 @@ export function TransactionFormSheet({ open, onOpenChange, transaction, categori
           <Field label="Observações" error={errors.notes?.message}>
             <Textarea {...register("notes")} rows={2} />
           </Field>
+
+          {transaction ? (
+            <ReceiptsField target={{ kind: "transaction", id: transaction.id }} receipts={transaction.receipts} uid={uid} />
+          ) : (
+            <p className="text-xs text-muted-foreground">Salve o lançamento para anexar comprovantes.</p>
+          )}
 
           <div className="mt-auto flex gap-2 pt-2">
             {transaction && (

@@ -12,14 +12,16 @@ interface TransactionsManagerProps {
   transactions: Transaction[];
   categories: Category[];
   accounts: Account[];
+  uid: string;
 }
 
-export function TransactionsManager({ transactions, categories, accounts }: TransactionsManagerProps) {
+export function TransactionsManager({ transactions, categories, accounts, uid }: TransactionsManagerProps) {
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Transaction | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editing = transactions.find((t) => t.id === editingId) ?? null;
 
   function openSheet(transaction: Transaction | null) {
-    setEditing(transaction);
+    setEditingId(transaction?.id ?? null);
     setOpen(true);
   }
 
@@ -42,6 +44,7 @@ export function TransactionsManager({ transactions, categories, accounts }: Tran
         transaction={editing}
         categories={categories}
         accounts={accounts}
+        uid={uid}
       />
     </>
   );

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowDownLeftIcon } from "lucide-react";
+import { ArrowDownLeftIcon, PaperclipIcon } from "lucide-react";
 import { CategoryIcon } from "@/components/finance/category-icon";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
 import { formatCents, formatDate } from "@/lib/format";
@@ -51,6 +51,7 @@ export function TransactionList({ transactions, categories, accounts, onSelect }
               <p className="truncate text-sm font-medium">{t.description}</p>
               <p className="truncate text-xs text-muted-foreground">
                 {formatDate(t.date)} · {accountName.get(t.accountId)}
+                {t.receipts.length > 0 && <PaperclipIcon className="ml-1.5 inline size-3" aria-label="Com comprovante" />}
               </p>
             </div>
             <span className={cn("text-sm font-semibold tabular-nums", income && "text-success")}>

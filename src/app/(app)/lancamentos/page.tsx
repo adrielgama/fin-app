@@ -26,7 +26,7 @@ export default async function LancamentosPage({ searchParams }: PageProps<"/lanc
         <MonthNav month={month} basePath="/lancamentos" />
       </Reveal>
       <Reveal delay={0.08} className="flex flex-col gap-4">
-        <TransactionsManager transactions={rows} categories={categories} accounts={accounts} />
+        <TransactionsManager transactions={rows} categories={categories} accounts={accounts} uid={user.uid} />
       </Reveal>
     </div>
   );

@@ -14,3 +14,9 @@ export const receiptSchema = z.object({
 });
 
 export type Receipt = z.infer<typeof receiptSchema>;
+
+export const receiptMetaSchema = receiptSchema.omit({ uploadedAt: true });
+export const receiptTargetSchema = z.object({ kind: z.enum(["transaction", "bill"]), id: idSchema });
+
+export type ReceiptMeta = z.infer<typeof receiptMetaSchema>;
+export type ReceiptTarget = z.infer<typeof receiptTargetSchema>;
