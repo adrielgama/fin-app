@@ -81,9 +81,8 @@ export function buildCashFlowForecast({ accounts, transactions, bills, today, da
   }
 
   for (const b of bills) {
-    if (b.status === "pending") {
-      events.push({ date: b.dueDate < todayIso ? todayIso : b.dueDate, label: b.title, amount: -b.amount });
-    }
+    if (b.status !== "pending") continue;
+    events.push({ date: b.dueDate < todayIso ? todayIso : b.dueDate, label: b.title, amount: -b.amount });
     for (const date of occurrencesAfter(b.dueDate, b.recurrence, horizon)) {
       if (date > todayIso) events.push({ date, label: b.title, amount: -b.amount });
     }

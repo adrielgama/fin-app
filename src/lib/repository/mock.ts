@@ -1,3 +1,4 @@
+import { addMonths, addWeeks, addYears, format, parseISO } from "date-fns";
 import type { Bill, IncomeEntry, Receipt, Transaction } from "@/lib/schemas";
 import type { FinanceRepository } from "./types";
 import { accounts, buildBills, buildIncomeEntries, buildTransactions, categories } from "./mock-data";
@@ -73,6 +74,55 @@ export function createMockRepository(): FinanceRepository {
       store.incomeEntries.splice(indexIn(store.incomeEntries, id), 1);
     },
     listBills: async () => store.bills,
+    createBill: async (input) => {
+      const created: Bill = { ...input, id: crypto.randomUUID(), status: "pending", paidAt: null, receipts: [], transactionId: null };
+      store.bills.push(created);
+      return created;
+    },
+    updateBill: async (id, input) => {
+      const index = indexIn(store.bills, id);
+      const updated: Bill = { ...store.bills[index], ...input };
+      store.bills[index] = updated;
+      return updated;
+    },
+    deleteBill: async (id) => {
+      store.bills.splice(indexIn(store.bills, id), 1);
+    },
+    payBill: async (id, paidAt) => {
+      const index = indexIn(store.bills, id);
+      const bill = store.bills[index];
+      if (bill.status === "paid") throw new Error("Conta já paga");
+
+      const transaction: Transaction = {
+        id: crypto.randomUUID(),
+        kind: "expense",
+        description: bill.title,
+        amount: bill.amount,
+        date: paidAt,
+        categoryId: bill.categoryId,
+        accountId: bill.accountId,
+        paymentMethod: "boleto",
+        recurrence: { frequency: "none" },
+        receipts: [...bill.receipts],
+        incomeEntryId: null,
+        billId: bill.id,
+        notes: "",
+        createdAt: new Date().toISOString(),
+      };
+      store.transactions.push(transaction);
+
+      const paid: Bill = { ...bill, status: "paid", paidAt, transactionId: transaction.id };
+      store.bills[index] = paid;
+
+      if (bill.recurrence.frequency !== "none") {
+        const step = { weekly: addWeeks, monthly: addMonths, yearly: addYears }[bill.recurrence.frequency];
+        const dueDate = format(step(parseISO(bill.dueDate), bill.recurrence.interval), "yyyy-MM-dd");
+        if (!bill.recurrence.endDate || dueDate <= bill.recurrence.endDate) {
+          store.bills.push({ ...bill, id: crypto.randomUUID(), dueDate, status: "pending", paidAt: null, receipts: [], transactionId: null });
+        }
+      }
+      return paid;
+    },
     addReceipt: async (target, meta) => {
       const receipt: Receipt = { ...meta, uploadedAt: new Date().toISOString() };
       const owner = target.kind === "transaction" ? store.transactions : store.bills;

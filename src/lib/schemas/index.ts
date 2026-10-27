@@ -8,3 +8,4 @@ export * from "./receipt";
 export * from "./transaction";
 export * from "./transaction-form";
 export * from "./income-form";
+export * from "./bill-form";

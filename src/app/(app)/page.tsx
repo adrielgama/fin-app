@@ -59,7 +59,7 @@ export default async function DashboardPage() {
         </Reveal>
 
         <Reveal delay={0.15}>
-          <Section title="Próximos vencimentos">
+          <Section title="Próximos vencimentos" href="/contas">
             <Panel>
               <ul className="flex flex-col gap-1">
                 {upcoming.map((bill) => (

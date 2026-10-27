@@ -163,7 +163,15 @@ export function buildIncomeEntries(now = new Date()): IncomeEntry[] {
 export function buildBills(now = new Date()): Bill[] {
   const ym = format(now, "yyyy-MM");
   const next = format(addMonths(now, 1), "yyyy-MM");
-  const bill = (id: string, title: string, amount: number, dueDate: string, categoryId: string, status: Bill["status"] = "pending"): Bill => ({
+  const bill = (
+    id: string,
+    title: string,
+    amount: number,
+    dueDate: string,
+    categoryId: string,
+    status: Bill["status"] = "pending",
+    recurrence: Bill["recurrence"] = monthly,
+  ): Bill => ({
     id,
     title,
     amount,
@@ -172,7 +180,7 @@ export function buildBills(now = new Date()): Bill[] {
     paidAt: status === "paid" ? dueDate : null,
     categoryId,
     accountId: "acc-itau",
-    recurrence: monthly,
+    recurrence,
     reminderDaysBefore: [3, 0],
     receipts: [],
     transactionId: null,
@@ -182,6 +190,8 @@ export function buildBills(now = new Date()): Bill[] {
     bill("bill-internet", "Internet", 12990, `${ym}-30`, "cat-moradia"),
     bill("bill-plano", "Plano de saúde", 54000, `${next}-10`, "cat-saude"),
     bill("bill-das", "DAS (Simples)", 36000, `${next}-20`, "cat-impostos"),
-    bill("bill-energia", "Energia", 18700, `${ym}-05`, "cat-moradia", "paid"),
+    bill("bill-energia-paid", "Energia", 18700, `${ym}-05`, "cat-moradia", "paid", none),
+    bill("bill-energia", "Energia", 19200, `${next}-05`, "cat-moradia"),
+    bill("bill-cartao", "Fatura Itaú Personnalité", 31400, `${ym}-17`, "cat-lazer"),
   ];
 }

@@ -1,10 +1,29 @@
-import { BriefcaseIcon, Table2Icon, CreditCardIcon, LayoutDashboardIcon, PieChartIcon, ReceiptTextIcon, type LucideIcon } from "lucide-react";
+import {
+  BriefcaseIcon,
+  CreditCardIcon,
+  LayoutDashboardIcon,
+  PieChartIcon,
+  ReceiptTextIcon,
+  Table2Icon,
+  TrendingUpIcon,
+  WalletIcon,
+  type LucideIcon,
+} from "lucide-react";
 
-export const navItems: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/", label: "Início", icon: LayoutDashboardIcon },
-  { href: "/lancamentos", label: "Lançamentos", icon: ReceiptTextIcon },
+export interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  primary?: boolean;
+}
+
+export const navItems: NavItem[] = [
+  { href: "/", label: "Início", icon: LayoutDashboardIcon, primary: true },
+  { href: "/lancamentos", label: "Lançamentos", icon: ReceiptTextIcon, primary: true },
+  { href: "/contas", label: "Contas", icon: WalletIcon, primary: true },
+  { href: "/cartoes", label: "Cartões", icon: CreditCardIcon, primary: true },
   { href: "/renda", label: "Renda", icon: BriefcaseIcon },
-  { href: "/cartoes", label: "Cartões", icon: CreditCardIcon },
-  { href: "/planilha", label: "Planilha", icon: Table2Icon },
   { href: "/gastos", label: "Gastos", icon: PieChartIcon },
+  { href: "/fluxo", label: "Fluxo", icon: TrendingUpIcon },
+  { href: "/planilha", label: "Planilha", icon: Table2Icon },
 ];
