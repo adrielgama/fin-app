@@ -9,7 +9,7 @@ const R = 52;
 const C = 2 * Math.PI * R;
 
 export function SpendingDonut({ slices, total }: { slices: CategorySlice[]; total: number }) {
-  let offset = 0;
+  const offsets = slices.map((_, i) => slices.slice(0, i).reduce((sum, s) => sum + s.pct * C, 0));
 
   return (
     <div className="flex flex-col gap-6">
@@ -18,7 +18,7 @@ export function SpendingDonut({ slices, total }: { slices: CategorySlice[]; tota
           <circle cx="60" cy="60" r={R} fill="none" strokeWidth="14" className="stroke-muted" />
           {slices.map((s, i) => {
             const len = Math.max(s.pct * C - 2, 0);
-            const el = (
+            return (
               <motion.circle
                 key={s.id}
                 cx="60"
@@ -28,14 +28,12 @@ export function SpendingDonut({ slices, total }: { slices: CategorySlice[]; tota
                 strokeWidth="14"
                 strokeLinecap="round"
                 stroke={s.color}
-                strokeDashoffset={-offset}
+                strokeDashoffset={-offsets[i]}
                 initial={{ strokeDasharray: `0 ${C}` }}
                 animate={{ strokeDasharray: `${len} ${C - len}` }}
                 transition={{ duration: 0.9, delay: 0.15 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
               />
             );
-            offset += s.pct * C;
-            return el;
           })}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">

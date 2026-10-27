@@ -154,8 +154,7 @@ export function createFirestoreRepository(uid: string): FinanceRepository {
           const step = { weekly: addWeeks, monthly: addMonths, yearly: addYears }[bill.recurrence.frequency];
           const dueDate = format(step(parseISO(bill.dueDate), bill.recurrence.interval), "yyyy-MM-dd");
           if (!bill.recurrence.endDate || dueDate <= bill.recurrence.endDate) {
-            const { id: _id, ...rest } = bill;
-            tx.set(col("bills").doc(), { ...rest, dueDate, status: "pending", paidAt: null, receipts: [], transactionId: null });
+            tx.set(col("bills").doc(), { ...billSchema.omit({ id: true }).parse(bill), dueDate, status: "pending", paidAt: null, receipts: [], transactionId: null });
           }
         }
         return { ...bill, status: "paid" as const, paidAt, transactionId: txRef.id };
