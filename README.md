@@ -2,11 +2,16 @@
 
 Finanças pessoais: Next.js (App Router) + TypeScript + Tailwind v4 + shadcn/ui + Firebase.
 
-## Status
+## Funcionalidades
 
-- [x] Estrutura, auth (Google/Firebase + cookie de sessão), modelo de dados, security rules
-- [x] Dados mock (dashboard e lançamentos somente leitura)
-- [ ] CRUD de lançamentos, renda CLT/PJ, dashboard com gráficos, planilha/exportação, comprovantes, contas a pagar + lembretes
+- Login Google (Firebase Auth) com session cookie httpOnly; dados por usuário no Firestore com security rules
+- Lançamentos (receita/despesa) com conta/cartão, forma de pagamento, recorrência e comprovantes
+- Renda CLT (salário, adiantamento) e PJ (notas, impostos)
+- Dashboard: saldo mensal, gastos por categoria, evolução mensal, previsão de fluxo de caixa (90 dias)
+- Planilha filtrável/ordenável por mês, exportação `.xlsx` e `.csv`
+- Cartões e contas separados (limite, fatura, fechamento/vencimento)
+- Contas a pagar com status, recorrência (gera a próxima ao pagar) e lembretes (Cloud Function + FCM/e-mail)
+- Tema claro/escuro, animações (`motion`)
 
 ## Rodando em modo mock (sem Firebase)
 
@@ -16,7 +21,7 @@ cp .env.example .env.local   # NEXT_PUBLIC_MOCK_MODE=true
 npm run dev
 ```
 
-Login "demo" cria cookie de sessão mock. Nunca use `NEXT_PUBLIC_MOCK_MODE=true` em produção.
+Login "demo" cria cookie de sessão mock; dados ficam em memória (reiniciar o servidor restaura o seed). Nunca use `NEXT_PUBLIC_MOCK_MODE=true` em produção.
 
 ## Setup do Firebase
 
@@ -35,7 +40,7 @@ Login "demo" cria cookie de sessão mock. Nunca use `NEXT_PUBLIC_MOCK_MODE=true`
    npx firebase use --add          # seu project id (substitui demo-fin-app)
    npm run deploy:rules
    ```
-8. (Push, etapa futura) **Cloud Messaging** > Web Push certificates > gere o par de chaves e preencha `NEXT_PUBLIC_FIREBASE_VAPID_KEY`.
+8. Push: **Cloud Messaging** > Web Push certificates > gere o par de chaves e preencha `NEXT_PUBLIC_FIREBASE_VAPID_KEY`.
 
 ## Emuladores (dev)
 
@@ -91,3 +96,30 @@ Tudo sob `users/{uid}`, isolado por regra (`request.auth.uid == uid`):
 | `bills` | title, amount, dueDate, status, recurrence, reminderDaysBefore[], receipts[] |
 
 Comprovantes: Storage em `users/{uid}/receipts/{arquivo}` (PDF/JPG/PNG/WebP, até 10 MB).
+
+## Lembretes (Cloud Function)
+
+`functions/` contém `billReminders`, agendada diariamente às 08:00 (America/Sao_Paulo):
+lê contas pendentes (`collectionGroup("bills")`), envia push via FCM e/ou grava em `mail/` (extensão
+[Trigger Email from Firestore](https://extensions.dev/extensions/firebase/firestore-send-email)) conforme as preferências em **Ajustes**.
+
+```bash
+npm --prefix functions install
+npm --prefix functions test       # lógica de seleção/mensagens
+npm run deploy:functions          # requer plano Blaze
+```
+
+Requisitos: ativar Cloud Messaging, gerar a VAPID key (`NEXT_PUBLIC_FIREBASE_VAPID_KEY`) e instalar a extensão de e-mail (SMTP) se quiser e-mails.
+O índice `bills (status, dueDate)` está em `firestore.indexes.json`.
+
+## Testes
+
+```bash
+npm run test:rules   # security rules (Firestore + Storage) nos emuladores
+```
+
+## Notas
+
+- Valores em centavos (inteiros); datas ISO `YYYY-MM-DD` (strings) no Firestore.
+- O servidor acessa o Firestore via Admin SDK, sempre sob `users/{uid}`; as rules protegem acessos diretos do cliente (Storage usa o SDK web).
+- Coleção `mail` e campo `lastReminderDate` das contas são escritos apenas pela Cloud Function.

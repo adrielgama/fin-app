@@ -1,9 +1,10 @@
 import { addMonths, addWeeks, addYears, format, parseISO } from "date-fns";
-import type { Bill, IncomeEntry, Receipt, Transaction } from "@/lib/schemas";
+import type { Account, Bill, IncomeEntry, Receipt, Transaction } from "@/lib/schemas";
 import type { FinanceRepository } from "./types";
 import { accounts, buildBills, buildIncomeEntries, buildTransactions, categories } from "./mock-data";
 
 interface MockStore {
+  accounts: Account[];
   transactions: Transaction[];
   incomeEntries: IncomeEntry[];
   bills: Bill[];
@@ -15,6 +16,7 @@ const globalStore = globalThis as typeof globalThis & { __finMockStore?: MockSto
 
 function getStore(): MockStore {
   globalStore.__finMockStore ??= {
+    accounts: structuredClone(accounts),
     transactions: buildTransactions(new Date()),
     incomeEntries: buildIncomeEntries(new Date()),
     bills: buildBills(new Date()),
@@ -38,7 +40,21 @@ export function createMockRepository(): FinanceRepository {
   };
 
   return {
-    listAccounts: async () => accounts,
+    listAccounts: async () => store.accounts,
+    createAccount: async (input) => {
+      const created: Account = { ...input, id: crypto.randomUUID() };
+      store.accounts.push(created);
+      return created;
+    },
+    updateAccount: async (id, input) => {
+      const index = indexIn(store.accounts, id);
+      const updated: Account = { ...input, id };
+      store.accounts[index] = updated;
+      return updated;
+    },
+    archiveAccount: async (id) => {
+      store.accounts[indexIn(store.accounts, id)].archived = true;
+    },
     listCategories: async () => categories,
     listTransactions: async ({ month } = {}) => store.transactions.filter((t) => inMonth(t.date, month)),
     createTransaction: async (input) => {

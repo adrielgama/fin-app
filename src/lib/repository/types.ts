@@ -1,4 +1,4 @@
-import type { Account, Bill, BillInput, Category, IncomeEntry, IncomeEntryInput, Receipt, ReceiptMeta, ReceiptTarget, Transaction, TransactionInput } from "@/lib/schemas";
+import type { Account, AccountInput, Bill, BillInput, Category, IncomeEntry, IncomeEntryInput, Receipt, ReceiptMeta, ReceiptTarget, Transaction, TransactionInput } from "@/lib/schemas";
 
 export interface NotificationSettings {
   push: boolean;
@@ -12,6 +12,10 @@ export interface MonthFilter {
 
 export interface FinanceRepository {
   listAccounts(): Promise<Account[]>;
+  createAccount(input: AccountInput): Promise<Account>;
+  updateAccount(id: string, input: AccountInput): Promise<Account>;
+  /** Arquiva a conta (mantém o histórico de lançamentos). */
+  archiveAccount(id: string): Promise<void>;
   listCategories(): Promise<Category[]>;
   listTransactions(filter?: MonthFilter): Promise<Transaction[]>;
   createTransaction(input: TransactionInput): Promise<Transaction>;

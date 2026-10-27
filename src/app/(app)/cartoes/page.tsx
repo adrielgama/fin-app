@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { AccountsManager } from "@/components/finance/accounts-manager";
 import { CardUsage } from "@/components/finance/card-usage";
 import { Panel, Section } from "@/components/finance/section";
 import { TransactionList } from "@/components/finance/transaction-list";
@@ -23,8 +24,9 @@ export default async function CartoesPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <Reveal>
-        <h1 className="text-2xl font-semibold">Cartões</h1>
+      <Reveal className="flex flex-col gap-4">
+        <h1 className="text-2xl font-semibold">Cartões e contas</h1>
+        <AccountsManager accounts={accounts.filter((a) => !a.archived)} />
       </Reveal>
       {cards.map((card, i) => {
         const rows = transactions

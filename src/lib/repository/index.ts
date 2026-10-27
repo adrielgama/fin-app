@@ -1,11 +1,12 @@
 import "server-only";
 import { isMockMode } from "@/lib/env";
+import { createFirestoreRepository } from "./firestore";
 import { createMockRepository } from "./mock";
 import type { FinanceRepository } from "./types";
 
 export function getRepository(uid: string): FinanceRepository {
   if (isMockMode) return createMockRepository();
-  throw new Error(`Repositório Firestore ainda não implementado (uid: ${uid}).`);
+  return createFirestoreRepository(uid);
 }
 
 export type { FinanceRepository } from "./types";

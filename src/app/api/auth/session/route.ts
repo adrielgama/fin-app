@@ -3,6 +3,7 @@ import { z } from "zod";
 import { MOCK_SESSION_VALUE, SESSION_COOKIE, SESSION_MAX_AGE_MS } from "@/lib/auth/constants";
 import { isMockMode } from "@/lib/env";
 import { adminAuth } from "@/lib/firebase/admin";
+import { seedUserIfNeeded } from "@/lib/repository/firestore";
 
 const bodySchema = z.union([z.object({ idToken: z.string().min(1) }), z.object({ mock: z.literal(true) })]);
 
@@ -32,10 +33,17 @@ export async function POST(request: Request) {
     if (Date.now() / 1000 - decoded.auth_time > 5 * 60) {
       return NextResponse.json({ error: "Login recente necessário" }, { status: 401 });
     }
+    await seedUserIfNeeded({
+      uid: decoded.uid,
+      email: decoded.email ?? "",
+      name: decoded.name ?? decoded.email ?? "Usuário",
+      photoURL: decoded.picture ?? null,
+    });
     const session = await auth.createSessionCookie(parsed.data.idToken, { expiresIn: SESSION_MAX_AGE_MS });
     response.cookies.set(SESSION_COOKIE, session, { ...cookieOptions, maxAge });
     return response;
-  } catch {
+  } catch (error) {
+    console.error("Falha ao criar sessão", error);
     return NextResponse.json({ error: "Token inválido" }, { status: 401 });
   }
 }
