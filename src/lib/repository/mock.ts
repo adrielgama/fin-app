@@ -7,6 +7,7 @@ interface MockStore {
   transactions: Transaction[];
   incomeEntries: IncomeEntry[];
   bills: Bill[];
+  notifications: { push: boolean; email: boolean; tokens: string[] };
   receiptFiles: Map<string, { contentType: string; bytes: Uint8Array }>;
 }
 
@@ -17,6 +18,7 @@ function getStore(): MockStore {
     transactions: buildTransactions(new Date()),
     incomeEntries: buildIncomeEntries(new Date()),
     bills: buildBills(new Date()),
+    notifications: { push: true, email: false, tokens: [] },
     receiptFiles: new Map(),
   };
   return globalStore.__finMockStore;
@@ -122,6 +124,17 @@ export function createMockRepository(): FinanceRepository {
         }
       }
       return paid;
+    },
+    getNotificationSettings: async () => ({
+      push: store.notifications.push,
+      email: store.notifications.email,
+      pushDevices: store.notifications.tokens.length,
+    }),
+    setNotificationPreferences: async ({ push, email }) => {
+      Object.assign(store.notifications, { push, email });
+    },
+    addFcmToken: async (token) => {
+      if (!store.notifications.tokens.includes(token)) store.notifications.tokens.push(token);
     },
     addReceipt: async (target, meta) => {
       const receipt: Receipt = { ...meta, uploadedAt: new Date().toISOString() };

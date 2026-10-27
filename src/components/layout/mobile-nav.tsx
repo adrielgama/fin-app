@@ -64,7 +64,7 @@ export function MobileNav() {
           <SheetHeader>
             <SheetTitle>Mais</SheetTitle>
           </SheetHeader>
-          <div className="grid grid-cols-4 gap-3 px-4">
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 px-4">
             {secondary.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}

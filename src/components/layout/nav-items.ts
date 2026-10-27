@@ -3,6 +3,7 @@ import {
   CreditCardIcon,
   LayoutDashboardIcon,
   PieChartIcon,
+  SettingsIcon,
   ReceiptTextIcon,
   Table2Icon,
   TrendingUpIcon,
@@ -26,4 +27,5 @@ export const navItems: NavItem[] = [
   { href: "/gastos", label: "Gastos", icon: PieChartIcon },
   { href: "/fluxo", label: "Fluxo", icon: TrendingUpIcon },
   { href: "/planilha", label: "Planilha", icon: Table2Icon },
+  { href: "/ajustes", label: "Ajustes", icon: SettingsIcon },
 ];

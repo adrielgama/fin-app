@@ -43,3 +43,5 @@ next-env.d.ts
 .firebase/
 *-debug.log
 firebase-service-account*.json
+functions/node_modules
+functions/lib

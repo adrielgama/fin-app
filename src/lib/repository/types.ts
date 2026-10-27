@@ -1,5 +1,11 @@
 import type { Account, Bill, BillInput, Category, IncomeEntry, IncomeEntryInput, Receipt, ReceiptMeta, ReceiptTarget, Transaction, TransactionInput } from "@/lib/schemas";
 
+export interface NotificationSettings {
+  push: boolean;
+  email: boolean;
+  pushDevices: number;
+}
+
 export interface MonthFilter {
   month?: string;
 }
@@ -21,6 +27,9 @@ export interface FinanceRepository {
   deleteBill(id: string): Promise<void>;
   /** Marca como paga, gera o lançamento de despesa e, se recorrente, a próxima ocorrência pendente. */
   payBill(id: string, paidAt: string): Promise<Bill>;
+  getNotificationSettings(): Promise<NotificationSettings>;
+  setNotificationPreferences(prefs: { push: boolean; email: boolean }): Promise<void>;
+  addFcmToken(token: string): Promise<void>;
   addReceipt(target: ReceiptTarget, meta: ReceiptMeta): Promise<Receipt>;
   removeReceipt(target: ReceiptTarget, receiptId: string): Promise<Receipt>;
 }

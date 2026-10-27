@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "emulators": "firebase emulators:start --only auth,firestore,storage --project demo-fin-app",
-    "emulators:seed": "firebase emulators:start --only auth,firestore,storage --project demo-fin-app --import=.firebase/data --export-on-exit",
-    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes,storage"
+    "emulators": "firebase emulators:start --only auth,firestore,storage,functions --project demo-fin-app",
+    "emulators:seed": "firebase emulators:start --only auth,firestore,storage,functions --project demo-fin-app --import=.firebase/data --export-on-exit",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes,storage",
+    "deploy:functions": "firebase deploy --only functions"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
