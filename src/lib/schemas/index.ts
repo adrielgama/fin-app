@@ -6,3 +6,4 @@ export * from "./income";
 export * from "./profile";
 export * from "./receipt";
 export * from "./transaction";
+export * from "./transaction-form";

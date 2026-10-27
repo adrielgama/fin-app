@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ArrowDownLeftIcon } from "lucide-react";
 import { CategoryIcon } from "@/components/finance/category-icon";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
@@ -9,9 +10,21 @@ interface TransactionListProps {
   transactions: Transaction[];
   categories: Category[];
   accounts: Account[];
+  onSelect?: (transaction: Transaction) => void;
 }
 
-export function TransactionList({ transactions, categories, accounts }: TransactionListProps) {
+function Row({ onSelect, children }: { onSelect?: () => void; children: ReactNode }) {
+  const className = "flex w-full items-center gap-3 p-2.5 text-left";
+  return onSelect ? (
+    <button type="button" onClick={onSelect} className={cn(className, "cursor-pointer rounded-2xl")}>
+      {children}
+    </button>
+  ) : (
+    <div className={className}>{children}</div>
+  );
+}
+
+export function TransactionList({ transactions, categories, accounts, onSelect }: TransactionListProps) {
   const categoryById = new Map(categories.map((c) => [c.id, c]));
   const accountName = new Map(accounts.map((a) => [a.id, a.name]));
 
@@ -23,8 +36,9 @@ export function TransactionList({ transactions, categories, accounts }: Transact
         return (
           <StaggerItem
             key={t.id}
-            className="flex items-center gap-3 rounded-2xl p-2.5 transition-colors hover:bg-muted/60"
+            className="rounded-2xl transition-colors hover:bg-muted/60"
           >
+            <Row onSelect={onSelect && (() => onSelect(t))}>
             <span
               className={cn(
                 "grid size-10 shrink-0 place-items-center rounded-full",
@@ -43,6 +57,7 @@ export function TransactionList({ transactions, categories, accounts }: Transact
               {income ? "+" : "-"}
               {formatCents(t.amount)}
             </span>
+            </Row>
           </StaggerItem>
         );
       })}
