@@ -84,15 +84,15 @@ export function buildTransactions(now = new Date()): Transaction[] {
     result.push(
       tx("salario", "05", "income", "Salário CLT", 650000, "cat-salario", "acc-itau", "transfer", monthly),
       tx("pj", "15", "income", `NF PJ ${ym}`, 420000 + back * 15000, "cat-freela", "acc-nubank", "pix"),
-      tx("aluguel", "08", "expense", "Aluguel", 230000, "cat-moradia", "acc-itau", "boleto", monthly),
+      tx("aluguel", "08", "expense", "Aluguel", 230000, "cat-moradia", "acc-itau", "boleto"),
       tx("mercado1", "10", "expense", "Supermercado", 62000 + back * 3000, "cat-mercado", "acc-card", "credit"),
       tx("mercado2", "22", "expense", "Supermercado", 48000, "cat-mercado", "acc-card", "credit"),
       tx("uber", "12", "expense", "Transporte por app", 21000 + back * 1500, "cat-transporte", "acc-card", "credit"),
       tx("cinema", "18", "expense", "Cinema e jantar", 18500, "cat-lazer", "acc-card2", "credit"),
       tx("streaming", "14", "expense", "Streaming e apps", 12900, "cat-assinaturas", "acc-card2", "credit", monthly),
       tx("restaurante", "26", "expense", "Restaurantes", 31000 + back * 2000, "cat-lazer", "acc-card", "credit"),
-      tx("saude", "20", "expense", "Plano de saúde", 54000, "cat-saude", "acc-itau", "debit", monthly),
-      tx("das", "20", "expense", "DAS (Simples)", 36000, "cat-impostos", "acc-nubank", "boleto", monthly),
+      tx("saude", "20", "expense", "Plano de saúde", 54000, "cat-saude", "acc-itau", "debit"),
+      tx("das", "20", "expense", "DAS (Simples)", 36000, "cat-impostos", "acc-nubank", "boleto"),
     );
   }
   return result;
