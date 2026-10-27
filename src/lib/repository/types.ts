@@ -1,4 +1,4 @@
-import type { Account, Bill, Category, IncomeEntry, Transaction, TransactionInput } from "@/lib/schemas";
+import type { Account, Bill, Category, IncomeEntry, IncomeEntryInput, Transaction, TransactionInput } from "@/lib/schemas";
 
 export interface MonthFilter {
   month?: string;
@@ -12,5 +12,8 @@ export interface FinanceRepository {
   updateTransaction(id: string, input: TransactionInput): Promise<Transaction>;
   deleteTransaction(id: string): Promise<void>;
   listIncomeEntries(filter?: MonthFilter): Promise<IncomeEntry[]>;
+  createIncomeEntry(input: IncomeEntryInput): Promise<IncomeEntry>;
+  updateIncomeEntry(id: string, input: IncomeEntryInput): Promise<IncomeEntry>;
+  deleteIncomeEntry(id: string): Promise<void>;
   listBills(): Promise<Bill[]>;
 }

@@ -1,4 +1,4 @@
-import type { Account, Category, Transaction } from "@/lib/schemas";
+import { netAmount, type Account, type Category, type IncomeEntry, type Transaction } from "@/lib/schemas";
 
 export interface CategorySlice {
   id: string;
@@ -47,4 +47,25 @@ export function cardSummaries(accounts: Account[], transactions: Transaction[]):
       const limit = account.creditLimit ?? 0;
       return { account, used, limit, available: Math.max(limit - used, 0), usedPct: limit ? Math.min(used / limit, 1) : 0 };
     });
+}
+
+export interface IncomeSummary {
+  cltNet: number;
+  pjGross: number;
+  pjTaxes: number;
+  pjNet: number;
+  totalNet: number;
+}
+
+export function incomeSummary(entries: IncomeEntry[]): IncomeSummary {
+  let cltNet = 0;
+  let pjGross = 0;
+  let pjTaxes = 0;
+  for (const e of entries) {
+    if (e.source === "clt") cltNet += netAmount(e);
+    else if (e.kind === "invoice") pjGross += e.grossAmount;
+    else pjTaxes += e.grossAmount;
+  }
+  const pjNet = pjGross - pjTaxes;
+  return { cltNet, pjGross, pjTaxes, pjNet, totalNet: cltNet + pjNet };
 }

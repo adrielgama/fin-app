@@ -6,9 +6,9 @@ import { format } from "date-fns";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { removeTransaction, saveTransaction } from "@/app/(app)/lancamentos/actions";
+import { Field, selectClass } from "@/components/finance/form-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -34,9 +34,6 @@ const paymentLabels = {
 
 const frequencyLabels = { none: "Não repete", weekly: "Semanal", monthly: "Mensal", yearly: "Anual" } as const;
 
-const selectClass =
-  "h-9 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 aria-invalid:border-destructive";
-
 interface TransactionFormSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -59,16 +56,6 @@ function emptyValues(categories: Category[], accounts: Account[]): TransactionFo
     endDate: "",
     notes: "",
   };
-}
-
-function Field({ label, error, children, className }: { label: string; error?: string; children: React.ReactNode; className?: string }) {
-  return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
-      <Label>{label}</Label>
-      {children}
-      {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
-  );
 }
 
 export function TransactionFormSheet({ open, onOpenChange, transaction, categories, accounts }: TransactionFormSheetProps) {
