@@ -13,15 +13,25 @@ Finanças pessoais: Next.js (App Router) + TypeScript + Tailwind v4 + shadcn/ui 
 - Contas a pagar com status, recorrência (gera a próxima ao pagar) e lembretes (Cloud Function + FCM/e-mail)
 - Tema claro/escuro, animações (`motion`)
 
-## Rodando em modo mock (sem Firebase)
+## Rodando em modo mock (sem Firebase, sem `.env`)
 
 ```bash
 npm install
-cp .env.example .env.local   # NEXT_PUBLIC_MOCK_MODE=true
 npm run dev
 ```
 
-Login "demo" cria cookie de sessão mock; dados ficam em memória (reiniciar o servidor restaura o seed). Nunca use `NEXT_PUBLIC_MOCK_MODE=true` em produção.
+Sem `.env.local`, o app sobe em **modo mock**: login demo, dados em memória (reiniciar o servidor restaura o seed) e
+todas as telas funcionais (comprovantes e exportações inclusive). Só push/FCM e a Cloud Function exigem Firebase.
+
+Seleção do modo (`NEXT_PUBLIC_MOCK_MODE`):
+
+| Valor | Comportamento |
+| --- | --- |
+| vazio / ausente | mock se faltar `NEXT_PUBLIC_FIREBASE_API_KEY`/`PROJECT_ID` (e `NODE_ENV != production`); Firebase quando configurado |
+| `true` | força mock (não use em produção: o login demo vira bypass de auth) |
+| `false` | força Firebase real ou emulador |
+
+Para migrar: preencha as variáveis `NEXT_PUBLIC_FIREBASE_*` e `FIREBASE_ADMIN_*` do `.env.local` e o app passa a usar o Firebase.
 
 ## Setup do Firebase
 
@@ -30,7 +40,7 @@ Login "demo" cria cookie de sessão mock; dados ficam em memória (reiniciar o s
 3. **Firestore Database** > criar banco (modo produção).
 4. **Storage** > começar (modo produção).
 5. **Configurações do projeto** > Seus apps > **Web** > copie a config para `.env.local`:
-   `NEXT_PUBLIC_FIREBASE_*`. Defina `NEXT_PUBLIC_MOCK_MODE=false`.
+   `NEXT_PUBLIC_FIREBASE_*`. O modo mock desliga sozinho ao preencher a config.
 6. **Configurações do projeto** > Contas de serviço > **Gerar nova chave privada**. Preencha
    `FIREBASE_ADMIN_PROJECT_ID`, `FIREBASE_ADMIN_CLIENT_EMAIL`, `FIREBASE_ADMIN_PRIVATE_KEY`
    (mantenha `\n` literais na chave, entre aspas). Nunca commite o JSON.

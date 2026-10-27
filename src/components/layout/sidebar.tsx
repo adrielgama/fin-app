@@ -1,6 +1,7 @@
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { isMockMode } from "@/lib/env";
 import type { SessionUser } from "@/lib/auth/constants";
 
 export function Sidebar({ user }: { user: SessionUser }) {
@@ -15,6 +16,9 @@ export function Sidebar({ user }: { user: SessionUser }) {
       </div>
       <SidebarNav />
       <div className="mt-auto flex flex-col gap-2">
+        {isMockMode && (
+          <span className="mx-3 w-fit rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-medium text-primary">Dados mock</span>
+        )}
         <div className="truncate px-3 text-xs text-muted-foreground">{user.email}</div>
         <SignOutButton />
       </div>

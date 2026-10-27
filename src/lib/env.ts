@@ -5,8 +5,13 @@ const bool = z
   .default("false")
   .transform((v) => v === "true");
 
+const optionalBool = z
+  .enum(["true", "false"])
+  .optional()
+  .transform((v) => (v === undefined ? undefined : v === "true"));
+
 const publicSchema = z.object({
-  NEXT_PUBLIC_MOCK_MODE: bool,
+  NEXT_PUBLIC_MOCK_MODE: optionalBool,
   NEXT_PUBLIC_USE_FIREBASE_EMULATOR: bool,
   NEXT_PUBLIC_FIREBASE_API_KEY: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string().optional(),
@@ -29,4 +34,11 @@ export const publicEnv = publicSchema.parse({
   NEXT_PUBLIC_FIREBASE_VAPID_KEY: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || undefined,
 });
 
-export const isMockMode = publicEnv.NEXT_PUBLIC_MOCK_MODE;
+const hasFirebaseConfig = Boolean(publicEnv.NEXT_PUBLIC_FIREBASE_API_KEY && publicEnv.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+
+/**
+ * `NEXT_PUBLIC_MOCK_MODE` explícito sempre vence. Sem ele, usa mock apenas fora de produção
+ * e enquanto não houver config do Firebase, então `npm run dev` funciona sem `.env`.
+ */
+export const isMockMode =
+  publicEnv.NEXT_PUBLIC_MOCK_MODE ?? (process.env.NODE_ENV !== "production" && !hasFirebaseConfig);
